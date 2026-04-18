@@ -21,8 +21,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 
-                header("Location: dashboard.php");
-                exit;
+                $host = $_SERVER['HTTP_HOST'];
+                $uri  = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+                $extra = 'dashboard.php';   
+                header("Location: http://$host$uri/$extra");
+                exit();
             } else {
                 $error = "Invalid username or password.";
             }
