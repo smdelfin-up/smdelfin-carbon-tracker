@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->execute([$username, $hashed_password]);
 
             $success = "Registration successful! You can now <a href='login.php'>Login</a>.";
-            header("Location: /login.php?success=registered");
+            header("Location: login.php?success=registered");
             exit(); // Always use exit() after a header redirect!
         } catch (PDOException $e) {
             if ($e->getCode() == 23000) { // Check for duplicate username
