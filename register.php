@@ -1,5 +1,5 @@
 <?php
-include 'db.php'; // Includes your PDO connection with the SSL certificate
+include 'db_connect.php'; // Includes your PDO connection with the SSL certificate
 
 $error = "";
 $success = "";
