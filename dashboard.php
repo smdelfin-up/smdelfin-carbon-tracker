@@ -1,61 +1,33 @@
-<?php
-session_start();
-include 'db.php';
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid var(--light-green); padding-bottom: 10px;">
+    <h2 style="margin: 0;">Welcome, <span style="color: var(--accent-green);"><?php echo htmlspecialchars($_SESSION['username']); ?></span></h2>
+    <a href="logout.php" style="color: #d90429; font-size: 0.9rem;">Logout</a>
+</div>
 
-if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit; }
-
-$user_id = $_SESSION['user_id'];
-$message = "";
-
-// Handle Form Submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $type = $_POST['activity_type'];
-    $val = floatval($_POST['value']);
+<div class="dashboard-grid" style="display: flex; flex-direction: column; gap: 20px;">
     
-    // Simple math logic for the "Sustainability Impact"
-    $factor = ($type == 'travel') ? 0.19 : 0.45;
-    $emitted = $val * $factor;
+    <div style="background: var(--primary-green); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+        <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">Your Total Footprint</p>
+        <h1 style="margin: 5px 0; font-size: 2.5rem;">0.00 <small style="font-size: 1rem;">kg CO2</small></h1>
+    </div>
 
-    $stmt = $pdo->prepare("INSERT INTO activity_logs (user_id, activity_type, value, carbon_emitted) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$user_id, $type, $val, $emitted]);
-    $message = "Activity logged! You emitted " . number_format($emitted, 2) . " kg of CO2.";
-}
+    <div class="container" style="max-width: 100%; margin: 0; text-align: left;">
+        <h3>Log New Activity</h3>
+        <form method="POST" action="">
+            <label>Activity Type:</label>
+            <select name="activity_type">
+                <option value="travel">Travel (km)</option>
+                <option value="electricity">Electricity (kWh)</option>
+            </select>
+            
+            <label>Amount:</label>
+            <input type="number" name="amount" step="0.01" placeholder="e.g. 15.5" required>
+            
+            <button type="submit" name="log_activity">Log Activity</button>
+        </form>
+    </div>
 
-// Fetch total for the user
-$stmt = $pdo->prepare("SELECT SUM(carbon_emitted) as total FROM activity_logs WHERE user_id = ?");
-$stmt->execute([$user_id]);
-$total = $stmt->fetch()['total'] ?? 0;
-?>
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Carbon Tracker</title>
-    <link rel="stylesheet" href="style.css"> </head>
-<body>
-    <h2>Welcome, <?php echo $_SESSION['username']; ?></h2>
-    <p>Your Total Footprint: <strong><?php echo number_format($total, 2); ?> kg CO2</strong></p>
-
-    <form method="POST">
-        <select name="activity_type">
-            <option value="travel">Travel (km)</option>
-            <option value="electricity">Electricity (kWh)</option>
-        </select>
-        <input type="number" name="value" step="0.01" placeholder="Enter amount" required>
-        <button type="submit">Log Activity</button>
-    </form>
-
-    <?php if ($message) echo "<p>$message</p>"; ?>
-
-    <h3>Eco-Friendly Recommendations</h3>
-    <ul>
-        <?php if ($total > 50): ?>
-            <li>Your footprint is high! Consider using a bicycle for short trips.</li>
-        <?php else: ?>
-            <li>Great job! Keep using energy-efficient appliances.</li>
-        <?php endif; ?>
-    </ul>
-    
-    <a href="logout.php">Logout</a>
-</body>
-</html>
+    <div style="background: #e9f5ee; border-left: 5px solid var(--accent-green); padding: 15px; border-radius: 4px;">
+        <h4 style="margin-top: 0; color: var(--primary-green);">🌱 Eco-Friendly Recommendation</h4>
+        <p style="margin-bottom: 0; font-size: 0.95rem;">Great job! Keep using energy-efficient appliances to further reduce your impact.</p>
+    </div>
+</div>
