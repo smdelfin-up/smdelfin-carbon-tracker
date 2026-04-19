@@ -34,7 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['log_activity'])) {
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $host   = $_SERVER['HTTP_HOST'];
         $dir    = rtrim(dirname($_SERVER['PHP_SELF']), '/');
-        header("Location: {$scheme}://{$host}{$dir}/dashboard.php?logged=1");
+        //header("Location: {$scheme}://{$host}{$dir}/dashboard.php?logged=1");
+        header("Location: dashboard.php");
         exit();
     }
 }

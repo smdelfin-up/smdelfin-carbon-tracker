@@ -7,7 +7,8 @@ if (isset($_SESSION['user_id'])) {
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host   = $_SERVER['HTTP_HOST'];
     $dir    = rtrim(dirname($_SERVER['PHP_SELF']), '/');
-    header("Location: {$scheme}://{$host}{$dir}/dashboard.php");
+    // header("Location: {$scheme}://{$host}{$dir}/dashboard.php");
+    header("Location: dashboard.php");
     exit();
 }
 
@@ -34,7 +35,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
                 $host   = $_SERVER['HTTP_HOST'];
                 $dir    = rtrim(dirname($_SERVER['PHP_SELF']), '/');
-                header("Location: {$scheme}://{$host}{$dir}/dashboard.php");
+                // header("Location: {$scheme}://{$host}{$dir}/dashboard.php");
+                header("Location: dashboard.php");
                 exit();
             } else {
                 $error = "Invalid username or password.";
