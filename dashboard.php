@@ -31,7 +31,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['log_activity'])) {
         $stmt->execute([$user_id, $type, $amount, $emissions]);
 
         // PRG pattern: redirect to prevent duplicate submissions on refresh
-        header("Location: dashboard.php?logged=1");
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host   = $_SERVER['HTTP_HOST'];
+        $dir    = rtrim(dirname($_SERVER['PHP_SELF']), '/');
+        header("Location: {$scheme}://{$host}{$dir}/dashboard.php?logged=1");
         exit();
     }
 }

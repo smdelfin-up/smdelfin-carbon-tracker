@@ -4,7 +4,10 @@ include 'db.php';
 
 // Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host   = $_SERVER['HTTP_HOST'];
+    $dir    = rtrim(dirname($_SERVER['PHP_SELF']), '/');
+    header("Location: {$scheme}://{$host}{$dir}/dashboard.php");
     exit();
 }
 
@@ -27,8 +30,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
 
-                // ✅ FIXED: Simple relative redirect — no more 404
-                header("Location: dashboard.php");
+                // Absolute redirect — required for nginx on Azure App Service
+                $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                $host   = $_SERVER['HTTP_HOST'];
+                $dir    = rtrim(dirname($_SERVER['PHP_SELF']), '/');
+                header("Location: {$scheme}://{$host}{$dir}/dashboard.php");
                 exit();
             } else {
                 $error = "Invalid username or password.";

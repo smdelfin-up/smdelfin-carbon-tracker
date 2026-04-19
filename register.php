@@ -4,7 +4,10 @@ include 'db.php';
 // Redirect if already logged in
 session_start();
 if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host   = $_SERVER['HTTP_HOST'];
+    $dir    = rtrim(dirname($_SERVER['PHP_SELF']), '/');
+    header("Location: {$scheme}://{$host}{$dir}/dashboard.php");
     exit();
 }
 
@@ -30,8 +33,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
             $stmt->execute([$username, $hashed_password]);
 
-            // ✅ FIXED: Simple relative redirect
-            header("Location: login.php?registered=1");
+            $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $host   = $_SERVER['HTTP_HOST'];
+            $dir    = rtrim(dirname($_SERVER['PHP_SELF']), '/');
+            header("Location: {$scheme}://{$host}{$dir}/login.php?registered=1");
             exit();
         } catch (PDOException $e) {
             if ($e->getCode() == 23000) {
