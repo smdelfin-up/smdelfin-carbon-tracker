@@ -322,9 +322,112 @@ a:hover { text-decoration: underline; }
     color: var(--primary);
 }
 
+/* ── Buttons (shared) ── */
+.btn {
+    display: inline-block;
+    padding: 11px 28px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+    cursor: pointer;
+}
+
+.btn:hover { text-decoration: none; transform: translateY(-1px); }
+.btn:active { transform: scale(0.98); }
+
+.btn-primary {
+    background: var(--primary);
+    color: #ffffff;
+}
+.btn-primary:hover { background: var(--primary-light); color: #ffffff; }
+
+.btn-accent {
+    background: var(--accent);
+    color: #ffffff;
+}
+.btn-accent:hover { background: #3da374; color: #ffffff; }
+
+/* ── Home / Index Page ── */
+.home-container {
+    max-width: 560px;
+    text-align: center;
+}
+
+.home-title {
+    color: var(--primary);
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0.25rem 0 0.5rem;
+}
+
+.status-badge-wrap {
+    margin-bottom: 1.25rem;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.status-ok  { background: var(--accent-light); color: var(--primary);  border: 1px solid #b7e4c7; }
+.status-err { background: var(--danger-light); color: var(--danger);   border: 1px solid #f5c6c2; }
+
+.home-goals {
+    background: var(--accent-light);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    text-align: left;
+    margin: 1.25rem 0;
+}
+
+.home-goals h3 {
+    margin: 0 0 0.75rem;
+    color: var(--primary);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.goals-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: transparent;
+}
+
+.goals-list li {
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+.home-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 1.5rem 0 1rem;
+}
+
+.home-footer {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
 /* ── Responsive ── */
 @media (max-width: 540px) {
     .log-form .form-row { flex-direction: column; }
     .form-group-btn { width: 100%; }
     .emissions-value { font-size: 2.2rem; }
+    .home-actions { flex-direction: column; }
+    .btn { text-align: center; }
 }
