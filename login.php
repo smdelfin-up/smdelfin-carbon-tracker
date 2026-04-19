@@ -1,36 +1,41 @@
 <?php
 session_start();
-include 'db.php'; // Your secure PDO connection
+include 'db.php';
+
+// Redirect if already logged in
+if (isset($_SESSION['user_id'])) {
+    header("Location: dashboard.php");
+    exit();
+}
 
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = trim($_POST['username']);
-    $password = $_POST['password'];
+    $username = trim($_POST['username'] ?? '');
+    $password = $_POST['password'] ?? '';
 
     if (!empty($username) && !empty($password)) {
         try {
-            // 1. Fetch user data by username
             $stmt = $pdo->prepare("SELECT id, username, password FROM users WHERE username = ?");
             $stmt->execute([$username]);
             $user = $stmt->fetch();
 
-            // 2. Verify the password against the stored hash
             if ($user && password_verify($password, $user['password'])) {
-                // Login successful - Set session variables
+                // Regenerate session ID to prevent session fixation
+                session_regenerate_id(true);
+
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
-                
-                $host = $_SERVER['HTTP_HOST'];
-                $uri  = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-                $extra = 'dashboard.php';   
-                header("Location: http://$host$uri/$extra");
+
+                // ✅ FIXED: Simple relative redirect — no more 404
+                header("Location: dashboard.php");
                 exit();
             } else {
                 $error = "Invalid username or password.";
             }
         } catch (PDOException $e) {
-            $error = "Error: " . $e->getMessage();
+            $error = "A database error occurred. Please try again.";
+            // Log error server-side: error_log($e->getMessage());
         }
     } else {
         $error = "Please fill in all fields.";
@@ -41,24 +46,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Login - Carbon Tracker</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login – EcoTrack 2026</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h2>Login to Tracker</h2>
-        <?php if($error) echo "<p style='color:red;'>$error</p>"; ?>
-        
+        <div class="brand-logo">🌿</div>
+        <h2>Welcome Back</h2>
+        <p class="subtitle">Log in to track your carbon footprint.</p>
+
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
+        <?php endif; ?>
+
         <form method="POST" action="">
-            <label>Username:</label>
-            <input type="text" name="username" required>
-            <br>
-            <label>Password:</label>
-            <input type="password" name="password" required>
-            <br>
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" autocomplete="username"
+                   value="<?php echo htmlspecialchars($username ?? ''); ?>" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" autocomplete="current-password" required>
+
             <button type="submit">Login</button>
         </form>
-        <p>Don't have an account? <a href="register.php">Register here</a>.</p>
+
+        <p class="form-footer">Don't have an account? <a href="register.php">Register here</a>.</p>
     </div>
 </body>
 </html>

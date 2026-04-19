@@ -1,39 +1,46 @@
 <?php
-include 'db.php'; // Includes your PDO connection with the SSL certificate
+include 'db.php';
 
-$error = "";
+// Redirect if already logged in
+session_start();
+if (isset($_SESSION['user_id'])) {
+    header("Location: dashboard.php");
+    exit();
+}
+
+$error   = "";
 $success = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = trim($_POST['username']);
-    $password = $_POST['password'];
+    $username = trim($_POST['username'] ?? '');
+    $password = $_POST['password'] ?? '';
 
-    if (!empty($username) && !empty($password)) {
-        // 1. Hash the password (Security best practice)
+    if (empty($username) || empty($password)) {
+        $error = "Please fill in all fields.";
+    } elseif (strlen($username) < 3 || strlen($username) > 30) {
+        $error = "Username must be between 3 and 30 characters.";
+    } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
+        $error = "Username may only contain letters, numbers, and underscores.";
+    } elseif (strlen($password) < 8) {
+        $error = "Password must be at least 8 characters.";
+    } else {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         try {
-            // 2. Insert into the database
-            $sql = "INSERT INTO users (username, password) VALUES (?, ?)";
-            $stmt = $pdo->prepare($sql);
+            $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
             $stmt->execute([$username, $hashed_password]);
 
-            $success = "Registration successful! You can now <a href='login.php'>Login</a>.";
-
-            $host = $_SERVER['HTTP_HOST'];
-            $uri  = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-            $extra = 'login.php';
-            header("Location: http://$host$uri/$extra");
+            // ✅ FIXED: Simple relative redirect
+            header("Location: login.php?registered=1");
             exit();
         } catch (PDOException $e) {
-            if ($e->getCode() == 23000) { // Check for duplicate username
-                $error = "Username already exists. Please choose another.";
+            if ($e->getCode() == 23000) {
+                $error = "Username already taken. Please choose another.";
             } else {
-                $error = "Error: " . $e->getMessage();
+                $error = "A database error occurred. Please try again.";
+                // error_log($e->getMessage());
             }
         }
-    } else {
-        $error = "Please fill in all fields.";
     }
 }
 ?>
@@ -41,25 +48,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Register - Carbon Tracker</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register – EcoTrack 2026</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h2>Create an Account</h2>
-        <?php if($error) echo "<p style='color:red;'>$error</p>"; ?>
-        <?php if($success) echo "<p style='color:green;'>$success</p>"; ?>
-        
+        <div class="brand-logo">🌿</div>
+        <h2>Create Account</h2>
+        <p class="subtitle">Start tracking your carbon footprint today.</p>
+
+        <?php if ($error): ?>
+            <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
+        <?php endif; ?>
+
         <form method="POST" action="">
-            <label>Username:</label>
-            <input type="text" name="username" required>
-            <br>
-            <label>Password:</label>
-            <input type="password" name="password" required>
-            <br>
-            <button type="submit">Register</button>
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" autocomplete="username"
+                   value="<?php echo htmlspecialchars($username ?? ''); ?>"
+                   minlength="3" maxlength="30" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" autocomplete="new-password"
+                   minlength="8" required>
+            <small class="field-hint">At least 8 characters.</small>
+
+            <button type="submit">Create Account</button>
         </form>
-        <p>Already have an account? <a href="login.php">Login here</a>.</p>
+
+        <p class="form-footer">Already have an account? <a href="login.php">Login here</a>.</p>
     </div>
 </body>
 </html>
