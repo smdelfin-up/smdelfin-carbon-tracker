@@ -4,7 +4,8 @@ server {
     index index.php index.html;
 
     location / {
-        try_files $uri $uri/ /index.php?$args;
+        # This tells Nginx: check for file, then folder, then add .php, then fallback to index
+        try_files $uri $uri/ $uri.php?$query_string /index.php?$query_string;
     }
 
     location ~ \.php$ {
